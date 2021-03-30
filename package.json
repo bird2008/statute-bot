@@ -1,0 +1,24 @@
+{
+  "name": "spambot",
+  "version": "1.0.0",
+  "description": "botsmap",
+  "main": "index.js",
+  "scripts": {
+    "dev:watch": "nodemon index.js",
+    "dev": "node index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "xd"
+  ],
+  "author": "Bartosz",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "moment": "^2.29.1",
+    "moment-timezone": "^0.5.33",
+    "nodemon": "^2.0.7"
+  }
+}
