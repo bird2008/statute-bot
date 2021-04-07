@@ -1,26 +1,23 @@
 const { Client, Message, MessageEmbed } = require('discord.js');
 const db = require('quick.db');
-const colors = require('hexacolors');
+const Discord = require('discord.js');
 
-/**
- * @param {Client} client 
- * @param {Message} msg 
- * @param {Array<string>} args 
- */
-const run = async (client, msg, args) => {
-    const guild = db.get(`guilds.${msg.guild.id}`);
-    let moderator = false;
-    guild.moderators.forEach(m => {
-        if(m == msg.author.id || msg.member.roles.cache.map(r => r.id == m)) moderator = true;
-    });
-    if(!moderator && !msg.member.hasPermission("MANAGE_GUILD")) return client.sendError("Vous n'avez pas la permission d'utiliser cette commande !", msg);
-    
-    const member = msg.mentions.members.first() || msg.guild.members.cache.get(args[0]);
-    if(!member) return client.sendError("Aucun membre ne correspond aux informations donnée.", msg);
+module.exports = {
+    name: "add",
+    category: "invitelogger",
+    description: "Dodaje zaproszenia do członka serwera (jeśli nie podano kwoty lub jeśli kwota jest mniejsza niż 1, kwota jest automatycznie ustawiana na 1).",
+    usage: "``<@member | memberID>`` ``[montant]``",
+    aliases: ["addi"],
+    permissions: ["MANAGE_GUILD"],
+
+run(msg, args) {
+    const { client, member, guild, } = msg
+    guild.members.cache.get(args[0]);
+    if(!member) return msg.reply("Żaden członek nie jest zgodny z podanymi informacjami.");
     let amount = parseInt(args[1]);
     if(!amount || isNaN(amount) || amount <= 0) amount = 1;
-    if(!db.has(`userInvites.${msg.guild.id}.${member.user.id}`)) {
-        db.set(`userInvites.${msg.guild.id}.${member.user.id}`, {
+    if(!db.has(`userInvites.${guild.id}.${member.user.id}`)) {
+        db.set(`userInvites.${guild.id}.${member.user.id}`, {
             count: {
                 ordinaries: 0,
                 bonus: 0,
@@ -43,16 +40,8 @@ const run = async (client, msg, args) => {
             }]
         });
     };
-    db.add(`userInvites.${msg.guild.id}.${member.user.id}.count.bonus`, amount);
-    db.add(`userInvites.${msg.guild.id}.${member.user.id}.count.total`, amount);
-    client.sendDone(`\`\`${amount}\`\` invitations bonus ont été ajoutées à ${member.user.toString()}.`, msg);
-};
-module.exports = {
-    name: "addInvites",
-    category: "invitelogger",
-    description: "Ajoute des invitations à un membre du serveur (si aucun montant n'est fourni ou si le montant est plus petit que 1, le montant est automatiquement paramétré à 1).",
-    usage: "``<@member | memberID>`` ``[montant]``",
-    aliases: ["addi"],
-    permissions: ["MANAGE_GUILD"],
-    run: run
-};
+    db.add(`userInvites.${guild.id}.${member.user.id}.count.bonus`, amount);
+    db.add(`userInvites.${guild.id}.${member.user.id}.count.total`, amount);
+    (`\`\`${amount}\`\` dodatkowe zaproszenia zostały dodane do ${member.user.toString()}.`);
+},
+}

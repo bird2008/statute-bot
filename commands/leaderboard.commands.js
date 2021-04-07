@@ -1,4 +1,4 @@
-const { Client, Message, MessageEmbed } = require('discord.js');
+const {MessageEmbed } = require('discord.js');
 const db = require('quick.db');
 const Discord = require('discord.js');
 
@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["lb"],
 
 run(msg, args) {
-    const { client, guild, author } = msg
+    const { client, guild, author, channel } = msg
     const users = Object.entries(db.get(`userInvites.${guild.id}`))
         .filter(u => guild.members.cache.get(u[0]) && guild.members.cache.get(u[0]).user)
         .sort((a, b) => a[1].count.total - b[1].count.total)
@@ -31,12 +31,12 @@ run(msg, args) {
     let loop = true;
     let embed = new MessageEmbed()
         .setColor(0xcc2c2c)
-        .setAuthor(msg.guild.name, msg.guild.iconURL())
+        .setAuthor(guild.name, guild.iconURL())
         .setDescription(
             `⏲Ładowanie rankingu...`
         )
     try {
-        let message = msg.channel.send(embed);
+        let message = channel.send(embed);
         let reactions = ["⬅️", "➡️"];
         if(pages.length > 1) for(let reaction of reactions) message.react(reaction);
         
@@ -52,7 +52,7 @@ run(msg, args) {
             message.edit(embed);
             if(pages.length <= 1) return loop = false;
             let filter = (reaction, user) => {
-                return reactions.includes(reaction.emoji.name) && user.id == msg.author.id;
+                return reactions.includes(reaction.emoji.name) && user.id == author.id;
             };
             message.awaitReactions(filter, { max: 1, time: 40000, errors: ["time"] })
             .then(async (collected) => {

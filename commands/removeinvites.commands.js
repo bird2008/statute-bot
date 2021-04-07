@@ -1,26 +1,23 @@
 const { Client, Message, MessageEmbed } = require('discord.js');
 const db = require('quick.db');
-const colors = require('hexacolors');
+const Discord = require('discord.js');
 
-/**
- * @param {Client} client 
- * @param {Message} msg 
- * @param {Array<string>} args 
- */
-const run = async (client, msg, args) => {
-    const guild = db.get(`guilds.${msg.guild.id}`);
-    let moderator = false;
-    guild.moderators.forEach(m => {
-        if(m == msg.author.id || msg.member.roles.cache.map(r => r.id == m)) moderator = true;
-    });
-    if(!moderator && !msg.member.hasPermission("MANAGE_GUILD")) return client.sendError("Vous n'avez pas la permission d'utiliser cette commande !", msg);
-    
-    const member = msg.mentions.members.first() || msg.guild.members.cache.get(args[0]);
-    if(!member) return client.sendError("Aucun membre ne correspond aux informations donnée.", msg);
+module.exports = {
+    name: "remove",
+    category: "invitelogger",
+    description: "Wycofaj zaproszenia od członka serwera (jeśli nie podano kwoty lub kwota jest mniejsza niż 1, kwota jest automatycznie ustawiana na 1).",
+    usage: "``<@member | memberID>`` ``[montant]``",
+    aliases: ["removei"],
+    permissions: ["MANAGE_GUILD"],
+
+run(msg, args,) {
+    const { client, member, guild, } = msg
+    guild.members.cache.get(args[0]);
+    if(!member) return client.sendError("Żaden członek nie jest zgodny z podanymi informacjami.", msg);
     let amount = parseInt(args[1]);
     if(!amount || isNaN(amount) || amount <= 0) amount = 1;
-    if(!db.has(`userInvites.${msg.guild.id}.${member.user.id}`)) {
-        db.set(`userInvites.${msg.guild.id}.${member.user.id}`, {
+    if(!db.has(`userInvites.${guild.id}.${member.user.id}`)) {
+        db.set(`userInvites.${guild.id}.${member.user.id}`, {
             count: {
                 ordinaries: 0,
                 bonus: 0,
@@ -43,16 +40,8 @@ const run = async (client, msg, args) => {
             }]
         });
     };
-    db.subtract(`userInvites.${msg.guild.id}.${member.user.id}.count.bonus`, amount);
-    db.subtract(`userInvites.${msg.guild.id}.${member.user.id}.count.total`, amount);
-    client.sendDone(`\`\`${amount}\`\` invitations bonus ont été retirées à ${member.user.toString()}.`, msg);
-};
-module.exports = {
-    name: "removeInvites",
-    category: "invitelogger",
-    description: "Retire des invitations à un membre du serveur (si aucun montant n'est fourni ou si le montant est plus petit que 1, le montant est automatiquement paramétré à 1).",
-    usage: "``<@member | memberID>`` ``[montant]``",
-    aliases: ["removei"],
-    permissions: ["MANAGE_GUILD"],
-    run: run
-};
+    db.subtract(`userInvites.${guild.id}.${member.user.id}.count.bonus`, amount);
+    db.subtract(`userInvites.${guild.id}.${member.user.id}.count.total`, amount);
+    msg.reply(`\`\`${amount}\`\` zaproszenia bonusowe zostały wycofane z ${member.user.toString()}.`);
+},
+}

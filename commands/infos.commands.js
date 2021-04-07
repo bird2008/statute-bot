@@ -1,16 +1,19 @@
 const { Client, Message, MessageEmbed } = require('discord.js');
 const db = require('quick.db');
-const colors = require('hexacolors');
 const { fromIntToLocalDate } = require('versus-tools');
 
-/**
- * @param {Client} client 
- * @param {Message} msg 
- * @param {Array<string>} args 
- */
-const run = async (client, msg, args) => {
-    const member = args[0] ? msg.mentions.members.first() || msg.guild.members.cache.get(args[0]) : msg.member;
-    if(!member) return client.sendError("Aucun membre ne correspond aux informations donnée.", msg);
+module.exports = {
+    name: "infos",
+    category: "invitelogger",
+    description: "Envoie vos informations ou celles du membre.",
+    usage: "``[@member | memberID]``",
+    permissions: ["MANAGE_GUILD"],
+    aliases: ["info"],
+
+run( msg, args) {
+    const { client, guild, } = msg
+    const member = args[0] ? msg.mentions.members.first() || guild.members.cache.get(args[0]) : msg.member;
+    if(!member) return msg.reply("Żaden członek nie jest zgodny z podanymi informacjami.");
 
     if(!db.has(`userInvites.${member.guild.id}.${member.user.id}`)) {
         db.set(`userInvites.${member.guild.id}.${member.user.id}`, {
@@ -48,7 +51,7 @@ const run = async (client, msg, args) => {
     let createdTimestamp = fromIntToLocalDate(Date.now() - member.user.createdTimestamp);
     let invites = `**${user.count.total}** (**${user.count.ordinaries}** ordinaires, **${user.count.bonus}** bonus, **${user.count.fakes}** fausses, **${user.count.leaves}** quittés)`;
     let clearedInvites = `**${user.count.reloaded.total}** (**${user.count.reloaded.ordinaries}** ordinaires, **${user.count.reloaded.bonus}** bonus)`;
-    let invitesActivity = (await msg.guild.fetchInvites())
+    let invitesActivity = (guild.fetchInvites())
         .filter(i => i.inviter && i.inviter.id == member.user.id)
         .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
         .array()
@@ -99,14 +102,7 @@ const run = async (client, msg, args) => {
             invitedMembers ? invitedMembers : `${client.emotes.get("no").toString()} ***Aucun membre invité***`
         )
     msg.channel.send(embed);
-};
+},
 
-module.exports = {
-    name: "infos",
-    category: "invitelogger",
-    description: "Envoie vos informations ou celles du membre.",
-    usage: "``[@member | memberID]``",
-    permissions: ["MANAGE_GUILD"],
-    aliases: ["info"],
-    run: run
-};
+
+}
