@@ -1,6 +1,6 @@
 const{ readdirSync } = require("fs")
 
-const { prefix } = require(__dirname + "/../config/config.js")
+const { PREFIX } = require(__dirname + "/../config/config.js")
 
 const { Collection } = require("discord.js")
 
@@ -36,6 +36,24 @@ module.exports = (client) => {
         if(author.bot || !guild) {
           return
         }
+
+        const { settings } = client
+
+    const guildId = guild?.id
+
+    // Save channel id to config
+    if (!settings.get(guildId)) {
+      settings.set(guildId, {
+        clocks: [],
+        prefix: null,
+      })
+    }
+
+    // Load guild prefix from config
+    const guildPrefix = settings.get(guildId)?.prefix
+
+    // Load prefix
+    let prefix = guildPrefix ? guildPrefix : PREFIX
       
         //Ignore messages without prefix
         if (!msg.content.startsWith(prefix)) return

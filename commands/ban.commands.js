@@ -1,18 +1,29 @@
 const {
     Permissions: { FLAGS },
   } = require("discord.js")
-  
+  const { MessageEmbed } = require("discord.js")
+
   module.exports = {
     name: "ban",
-    description: "Ban user.",
+    description: "Banuje użytkowników",
     args: true,
     usage: "<user> [days(0-7)] [reason]",
-    botPermissions: [FLAGS.BAN_MEMBERS],
-    userPermissions: [FLAGS.BAN_MEMBERS],
-  
+    permissions: "```ADMINISTRATOR, MANAGE_MESSAGES```",
+
     run(msg, args) {
-      const { channel, guild, mentions, author } = msg
-  
+      const { channel, guild, mentions, author, member } = msg
+      let memberr = msg.mentions.users.first() || msg.author
+
+      let dembed = new MessageEmbed()
+        .setColor(0xF72121)
+        .setTitle("❌ | Nie masz permisji do wykonania tej komendy!")
+        .setFooter(`KOLEGA - ${member.username}`)
+        .setTimestamp()  
+
+        if (!member.permissionsIn(channel).has(["ADMINISTRATOR", "MANAGE_MESSAGES"])) {
+            return msg.channel.send(dembed);  
+          }
+
       let daysArg = +args[1]
   
       // Validate days
@@ -24,19 +35,36 @@ const {
       const reasonArg = [...args].slice(isNaN(daysArg) ? 1 : 2).join(" ")
   
       const userToBan = mentions.users.first()
+      const aembed = new MessageEmbed()
+        .setTitle(`❌ | Podaj prawidłową nazwę użytkownika`)
+        .setColor(0xf72121)
+        .setFooter(`KOLEGA - ${memberr.username}`)
+        .setTimestamp()
+
+      const bembed = new MessageEmbed()
+      .setTitle(`😉 | Nie możesz zbanować siebie`)
+      .setColor(0xf72121)
+      .setFooter(`KOLEGA - ${memberr.username}`)
+        .setTimestamp()
+      
+      const cembed = new MessageEmbed()
+      .setTitle(`🥺 | Potrzebuję wyższej rangi`)
+      .setColor(0xf72121) 
+      .setFooter(`KOLEGA - ${memberr.username}`)
+        .setTimestamp()
   
       if (!userToBan) {
-        return msg.reply("Wprowadź prawidłową nazwę użytkownika")
+        return msg.channel.send(aembed)
       }
   
       if (userToBan.id === author.id) {
-        return msg.reply("Nie możesz sam siebie zbanować😅")
+        return msg.channel.send(bembed)
       }
   
       const memberToBan = guild.members.cache.get(userToBan.id)
   
       if (!memberToBan.bannable) {
-        return channel.send("Potrzebuję wyższej rangi🥺")
+        return msg.channel.send(cembed)
       }
   
       // Add ban options
@@ -47,7 +75,7 @@ const {
       // Add number of days of messages to delete
       if (!isNaN(daysArg)) banOptions.days = daysArg
       
-      const { MessageEmbed } = require("discord.js")
+      
 
       // Ban user
       memberToBan.ban(banOptions).then((bannedUser) => {
@@ -55,6 +83,8 @@ const {
         .setTitle(`Użytkownik ${bannedUser.displayName} został zbanowany\n${
           reasonArg ? `Powód: ${reasonArg}` : "" }`)
         .setColor(0x4bf542)
+        .setFooter(`KOLEGA - ${memberr.username}`)
+        .setTimestamp()
         msg.channel.send(embed)
       })
     },

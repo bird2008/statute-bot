@@ -1,43 +1,73 @@
 const {
     Permissions: { FLAGS },
   } = require("discord.js")
-  
+  const { MessageEmbed } = require("discord.js")
+
   module.exports = {
     name: "kick",
-    description: "Kick user",
+    description: "Usuwa użytkowników",
     args: true,
     usage: "<user> [reason]",
-    botPermissions: [FLAGS.KICK_MEMBERS],
-    userPermissions: [FLAGS.KICK_MEMBERS],
+    permissions: "```ADMINISTRATOR, MANAGE_MESSAGES```",  
   
     run(msg, args) {
-      const { channel, guild, mentions, author } = msg
+      const { channel, guild, mentions, author, member } = msg
+
+      let memberr = msg.mentions.users.first() || msg.author
+
+      let eembed = new MessageEmbed()
+        .setColor(0xF72121)
+        .setTitle("❌ | Nie masz permisji do wykonania tej komendy!" )
+        .setFooter(`KOLEGA - ${memberr.username}`)
+        .setTimestamp()
+          
+
+        if (!member.permissionsIn(channel).has(["ADMINISTRATOR", "MANAGE_MESSAGES"])) {
+            return msg.channel.send(eembed);  
+          }
   
       const reasonArg = [...args].slice(1).join(" ")
   
       const userToKick = mentions.users.first()
+      const aembed = new MessageEmbed()
+        .setTitle(`❌ | Podaj prawidłową nazwę użytkownika`)
+        .setColor(0xf72121)
+        .setFooter(`KOLEGA - ${memberr.username}`)
+        .setTimestamp()
+
+      const bembed = new MessageEmbed()
+      .setTitle(`😉 | Nie możesz wyrzucić siebie`)
+      .setColor(0xf72121)
+      .setFooter(`KOLEGA - ${memberr.username}`)
+        .setTimestamp()
+      
+      const cembed = new MessageEmbed()
+      .setTitle(`🥺 | Potrzebuję wyższej rangi`)
+      .setColor(0xf72121)  
+      .setFooter(`KOLEGA - ${memberr.username}`)
+        .setTimestamp()
   
       if (!userToKick) {
-        return msg.reply("Podaj prawidłową nazwę użytkownika")
+        return msg.channel.send(aembed)
       }
   
       if (userToKick.id === author.id) {
-        return msg.reply("Nie możesz wyrzucić siebie😉")
+        return msg.channel.send(bembed)
       }
   
       const memberToKick = guild.members.cache.get(userToKick.id)
   
       if (!memberToKick.kickable) {
-        return channel.send("Potrzebuję wyższej rangi🥺")
+        return msg.channel.send(cembed)
       }
-
-      const { MessageEmbed } = require("discord.js")
 
       memberToKick.kick(reasonArg).then((res) => {
         const embed = new MessageEmbed()
         .setTitle(`Użytkownik ${res.displayName} został wyrzucony\n${
           reasonArg ? `Powód: ${reasonArg}` : "" }`)
         .setColor(0x4bf542)
+        .setFooter(`KOLEGA - ${memberr.username}`)
+        .setTimestamp()
         msg.channel.send(embed)
       })
     },
