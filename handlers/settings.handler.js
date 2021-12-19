@@ -22,7 +22,7 @@ module.exports = (client) => {
         "utf8",
       )
 
-      const data = yaml.safeLoad(settingsFile)
+      const data = yaml.load(settingsFile)
       const guildId = file.split(".")[0]
 
       // Set server settings
@@ -37,7 +37,7 @@ module.exports = (client) => {
       const config = client.settings.get(guildId)
 
       try {
-        const yamlStr = yaml.safeDump(config)
+        const yamlStr = yaml.dump(config)
 
         writeFileSync(
           __dirname + `/..${serverConfigPath}/${guildId}.yaml`,

@@ -1,102 +1,74 @@
-const { Client, Message} = require('discord.js')
+const Discord = require("discord.js");
 
-const { MessageEmbed} = require("discord.js")
+const client = new Discord.Client({
+  intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES],
+});
+const { MessageEmbed } = require("discord.js");
+const { red } = require("hexacolors");
 
-const { token } = require("./config/config.js")
+const { token } = require("./config/config.js");
 
-const commandHandler = require("./handlers/command.handler")
+const commandHandler = require("./handlers/command.handler");
 
-const settingsHandler = require("./handlers/settings.handler")
+const settingsHandler = require("./handlers/settings.handler");
 
-const client = new Client({ partials: ["MESSAGE", "CHANNEL", "REACTION"] })
-const {
-  Permissions: { FLAGS },
-} = require("discord.js")
+const log = console.log;
 
-const log = console.log
+commandHandler(client);
 
-commandHandler(client)
+settingsHandler(client);
 
-settingsHandler(client)
-
-const rulesMessageId = "833984307331727371"
+const rulesMessageId = "833984307331727371";
 
 const guildRoles = {
-  VERIFIED: "833982306238464001"
-} 
+  VERIFIED: "833982306238464001",
+};
 
-client.on('ready', () => {
+client.on("ready", () => {
   log(`Logged in as ${client.user.tag}!`);
 
   client.settings.forEach((config, guildID) => {
-    const { guilds } = client
-  })
-})
+    const { guilds } = client;
+  });
+});
 
 client.login(token);
 
-client.on('message', msg => {
+client.on("messageCreate", async (msg) => {
+  const { author, guild, user, client } = msg;
 
-  const { author, guild, user, client } = msg
+  const { PREFIX } = require(__dirname + "/./config/config.js");
 
-  const { PREFIX } = require(__dirname + "/./config/config.js")
+  const { settings } = client;
 
-  const { settings } = client
+  const guildId = guild?.id;
 
-  const guildId = guild?.id
+  const guildPrefix = settings.get(guildId)?.prefix;
 
-  const guildPrefix = settings.get(guildId)?.prefix
+  let prefix = guildPrefix ? guildPrefix : PREFIX;
 
-  let prefix = guildPrefix ? guildPrefix : PREFIX 
+  let fembed = new Discord.MessageEmbed()
+    .setColor(red)
+    .setTitle(`Obecny prefix na tym serwerze to \`${prefix}\`.`);
 
-
-  let fembed = new MessageEmbed()
-  .setColor(0xF72121)
-  .setTitle(`Obecny prefix na tym serwerze to \`${prefix}\`.`);   
-
-
-  if (msg.content.replace(/ /g, "").replace(/!/g, "") == client.user.toString()) {
-    msg.channel.send(fembed);
+  if (
+    msg.content.replace(/ /g, "").replace(/!/g, "") == client.user.toString()
+  ) {
+    msg.channel.send({ embeds: [fembed] });
   }
 });
- 
-client.on('messageReactionAdd', async (reaction, user, guild) => {
-  if (reaction.partial) await reaction.fetch()
-
-  const { message } = reaction
-  if (message.content === '**Aby potwierdzić regulamin naciśnij poniższą reakcję - dotaniesz możliwość wyświetlenia wszystkich kanałów!**') {
-    const member = message.channel.guild.members.cache.get(user.id)
-
-    if (reaction.emoji.name === "👍") {
-      member.roles.add(guildRoles.VERIFIED)
-    }
-  }
-}) 
-
-client.on('messageReactionRemove', async (reaction, user, guild) => {
-  if (reaction.partial) await reaction.fetch()
-
-  const { message } = reaction
-  if (message.content === '**Aby potwierdzić regulamin naciśnij poniższą reakcję - dotaniesz możliwość wyświetlenia wszystkich kanałów!**') {
-    const member = message.channel.guild.members.cache.get(user.id)
-
-    if (reaction.emoji.name === "👍") {
-      member.roles.remove(guildRoles.VERIFIED)
-    }
-  }
-}) 
 
 setInterval(() => {
   const statuses = [
     `_help`,
-    `Serwery: ${client.guilds.cache.size}`, 
+    `Serwery: ${client.guilds.cache.size}`,
     `Użytkownicy: ${client.users.cache.size}`,
     `Ping: ${client.ws.ping}ms`,
-  ]
-  const status = statuses[Math.floor(Math.random() *statuses.length)]
-  client.user.setActivity(status, { type: "PLAYING"})
+  ];
+  const status = statuses[Math.floor(Math.random() * statuses.length)];
+  client.user.setActivity(status, { type: "PLAYING" });
 }, 5000);
 
-client.on('rdebug', () => {})
-client.on('warn', () => {})
-client.on('error', () => {})
+client.on("rdebug", () => {});
+client.on("warn", () => {});
+client.on("error", () => {});

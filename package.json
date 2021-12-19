@@ -1,30 +1,35 @@
 {
-  "name": "spambot",
+  "name": "statutebot",
   "version": "1.0.0",
-  "description": "botsmap",
+  "description": "xd",
   "main": "index.js",
   "scripts": {
     "dev:watch": "nodemon index.js",
     "dev": "node index.js",
-    "start": "node index.js",
+    "start": "nod index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "xd"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bird2008/statute_bot.git"
+  },
   "author": "Bartosz",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bird2008/statute_bot/issues"
+  },
+  "homepage": "https://github.com/bird2008/statute_bot#readme",
   "dependencies": {
-    "discord.js": "^12.5.3",
-    "dotenv": "^8.2.0",
-    "fs": "0.0.1-security",
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0",
+    "fs": "^0.0.1-security",
     "hexacolors": "^1.1.1",
-    "js-yaml": "^3.13.1",
+    "js-yaml": "^4.1.0",
     "moment": "^2.29.1",
-    "moment-timezone": "^0.5.33",
-    "node-fetch": "^2.6.1",
-    "nodemon": "^2.0.7",
+    "moment-timezone": "^0.5.34",
+    "node-fetch": "^3.1.0",
+    "nodemon": "^2.0.15",
     "quick.db": "^7.1.3",
-    "versus-tools": "^1.1.6"
+    "versus-tools": "^1.1.7"
   }
 }

@@ -25,7 +25,7 @@ module.exports = (client) => {
 
     console.log(commandFiles)
 
-    client.on('message', (msg) => {
+    client.on('messageCreate', (msg) => {
 
         const { MessageEmbed } = require('discord.js')
 
